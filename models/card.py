@@ -21,3 +21,4 @@ class Card(Base):
     image: Mapped[str]
     color: Mapped[List[str]] = mapped_column(ARRAY(String))
     tags: Mapped[List[str]] = mapped_column(ARRAY(String))
+    code: Mapped[str]
