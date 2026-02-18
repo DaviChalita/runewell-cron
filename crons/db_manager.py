@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 
-@repeat(every().day.at("00:00"))
+@repeat(every(1).minutes)
 def manage_db():
     engine = create_engine(
         f'postgresql+psycopg2://{os.environ['DB_USER']}:{os.environ['DB_PASS']}@{os.environ['DB_HOST']}/{os.environ['DB_NAME']}')
@@ -42,8 +42,8 @@ def manage_db():
                 logger.exception(e)
                 logger.error('-----------------------------------------')
                 continue
-
             session.commit()
+            logger.info('Atualização finalizada')
 
 
 while True:
