@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 import time
 
 import requests
@@ -27,8 +28,16 @@ def manage_db():
         for card in card_list:
             try:
                 rarity = RarityEnum[card['rarity'].upper()].value
-                stmt = insert(Card).values(name=card['name'], effect=card['effect'], cost=card['cost'],
-                                           type=card['type'], might=card['might'], set_name=card['set_name'],
+                regex = re.compile(r':(rb_[a-z0-9_]+):')
+                card_effect = card['effect']
+                if card_effect is not None and regex.search(card_effect):
+                    card_effect = re.sub(r":(rb_[a-z0-9_]+):", r'<img src="https://static.dotgg.gg/riftbound/text/\1.svg">', card_effect)
+
+                stmt = insert(Card).values(name=card['name'], effect=card_effect,
+                                           cost=int(card['cost'] if card['cost'] is not None and card['cost'] != '' and not card['cost'].isspace() else 0),
+                                           type=card['type'],
+                                           might=int(card['might'] if card['might'] is not None and card['might'] != '' and not card['might'].isspace() else 0),
+                                           set_name=card['set_name'],
                                            rarity=rarity, image=card['image'], color=card['color'], tags=card['tags'],
                                            code=card['id'])
 
