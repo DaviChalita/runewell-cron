@@ -13,11 +13,11 @@ from sqlalchemy.orm import Session
 from enums.rarityenum import RarityEnum
 from models.card import Card
 
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
-@repeat(every(1).minutes)
+@repeat(every(1).seconds)
 def manage_db():
     engine = create_engine(
         f'postgresql+psycopg2://{os.environ['DB_USER']}:{os.environ['DB_PASS']}@{os.environ['DB_HOST']}/{os.environ['DB_NAME']}')
@@ -25,8 +25,10 @@ def manage_db():
         requests.get('https://api.dotgg.gg/cgfw/getcards?game=riftbound&mode=indexed&cache=1157').text)
     card_list = [dict(zip(json_resp['names'], items)) for items in json_resp['data']]
     with Session(engine) as session:
+        logger.info('Atualização iniciada')
         for card in card_list:
             try:
+
                 rarity = RarityEnum[card['rarity'].upper()].value
                 regex = re.compile(r':(rb_[a-z0-9_]+):')
                 card_effect = card['effect']
@@ -47,7 +49,7 @@ def manage_db():
                 session.execute(stmt)
             except Exception as e:
                 logger.error('-----------------------------------------')
-                logger.error(f'Erro na carta {card['id']}')
+                logger.error(f'Erro na carta {card['name']} - {card['id']}')
                 logger.exception(e)
                 logger.error('-----------------------------------------')
                 continue
