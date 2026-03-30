@@ -15,6 +15,7 @@ class Card(Base):
     effect: Mapped[str]
     cost: Mapped[str]
     type: Mapped[str]
+    supertype: Mapped[str]
     might: Mapped[str]
     set_name: Mapped[str]
     rarity: Mapped[str]
