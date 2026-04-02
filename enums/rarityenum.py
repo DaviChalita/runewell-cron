@@ -7,5 +7,3 @@ class RarityEnum(Enum):
     RARE = 3
     EPIC = 4
     SHOWCASE = 5
-    PROMO = 5
-    TOKEN = 6

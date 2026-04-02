@@ -28,12 +28,22 @@ def manage_db():
         logger.info('Atualização iniciada')
         for card in card_list:
             try:
+                rarity__upper = card['rarity'].upper()
+                is_token = False
+                is_promo = False
+                match rarity__upper:
+                    case 'TOKEN':
+                        is_token = True
+                    case 'PROMO':
+                        is_promo = True
+                    case _:
+                        rarity = RarityEnum[rarity__upper].value
 
-                rarity = RarityEnum[card['rarity'].upper()].value
                 regex = re.compile(r':(rb_[a-z0-9_]+):')
                 card_effect = card['effect']
                 if card_effect is not None and regex.search(card_effect):
-                    card_effect = re.sub(r":(rb_[a-z0-9_]+):", r'<img src="https://static.dotgg.gg/riftbound/text/\1.svg">', card_effect)
+                    card_effect = re.sub(r":(rb_[a-z0-9_]+):",
+                                         r'<img src="https://static.dotgg.gg/riftbound/text/\1.svg">', card_effect)
 
                 card_cost_ = card['cost']
                 card_supertype_ = card['supertype']
@@ -46,7 +56,8 @@ def manage_db():
                                            might=int(
                                                card_might_ if card_might_ is not None and card_might_ != '' and not card_might_.isspace() else 0),
                                            set_name=card['set_name'],
-                                           rarity=rarity, image=card['image'], color=card['color'], tags=card['tags'],
+                                           rarity=rarity, is_token=is_token, is_promo=is_promo, image=card['image'],
+                                           color=card['color'], tags=card['tags'],
                                            code=card['id'])
 
                 stmt = stmt.on_conflict_do_update(constraint='cards_code_uk',
